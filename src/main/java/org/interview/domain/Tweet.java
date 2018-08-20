@@ -1,5 +1,8 @@
 package org.interview.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 import java.time.ZonedDateTime;
@@ -12,17 +15,26 @@ The text of the message
 The author of the message
      */
 
+
     public final String id;
-    public final String id_str;
-    public final String created_at;
+
+    public final String idStr;
+
+    public final ZonedDateTime created_at;
     public final String text;
     public final String timestamp_ms;
     public final User user;
 
 
-    public Tweet(String id, String id_str, String created_at, String text, String timestamp_ms, User user) {
+    @JsonCreator
+    public Tweet( @JsonProperty("id") String id,
+                  @JsonProperty("id_str") String idStr,
+                  @JsonProperty("created_at") @JsonFormat(pattern = "EEE MMM dd HH:mm:ss Z yyyy")ZonedDateTime created_at,
+                  @JsonProperty("text") String text,
+                  @JsonProperty("timestamp_ms") String timestamp_ms,
+                  @JsonProperty("user") User user) {
         this.id = id;
-        this.id_str = id_str;
+        this.idStr = idStr;
         this.created_at = created_at;
         this.text = text;
         this.timestamp_ms = timestamp_ms;
@@ -33,7 +45,7 @@ The author of the message
     public String toString() {
         return  MoreObjects.toStringHelper(this)
                 .add("id",id)
-                .add("id_str",id_str)
+                .add("id_str",idStr)
                 .add("created_at",created_at)
                 .add("text",text)
                 .add("timestamp_ms",timestamp_ms)
