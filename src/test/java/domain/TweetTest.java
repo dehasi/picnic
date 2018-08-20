@@ -1,7 +1,10 @@
 package domain;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.interview.domain.Tweet;
@@ -10,7 +13,13 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Locale;
 
 public class TweetTest {
@@ -19,17 +28,26 @@ public class TweetTest {
     @Test
     public void gson_parsesDateTime() throws IOException {
         DateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH);
-//        Gson gson = new GsonBuilder().setDateFormat(DateFormat.LONG, DateFormat.LONG).create();
-        Gson gson = new GsonBuilder().setDateFormat("EEE MMM dd HH:mm:ss Z yyyy").create();
-//        Gson gson = new Gson();
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setDateFormat(dateFormat);
 //        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+//        mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
+        mapper.registerModule(new JavaTimeModule());
+        mapper.setDateFormat(dateFormat);
 
         Tweet tweet = mapper.readValue(TWEET, Tweet.class);
 
 //        Tweet tweet = gson.fromJson(TWEET, Tweet.class);
 
         Assert.assertNotNull(tweet);
+    }
+
+    @Test
+    public void ztd_parse() throws ParseException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss Z yyyy");
+
+        ZonedDateTime.parse("Mon Aug 20 13:28:07 +0000 2018", formatter);
+//1534771687826
+//        SimpleDateFormat sf = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
+//         sf.parse("Mon Aug 20 13:28:07 +0000 2018");
     }
 }
