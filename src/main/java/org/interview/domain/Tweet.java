@@ -1,5 +1,7 @@
 package org.interview.domain;
 
+import com.google.common.base.MoreObjects;
+
 public final class Tweet {
     /*
     The message ID
@@ -23,5 +25,18 @@ The author of the message
         this.text = text;
         this.timestamp_ms = timestamp_ms;
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return  MoreObjects.toStringHelper(this)
+                .add("id",id)
+                .add("id_str",id_str)
+                .add("created_at",created_at)
+                .add("text",text)
+                .add("timestamp_ms",timestamp_ms)
+                .add("user",user)
+                .toString();
+
     }
 }

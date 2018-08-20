@@ -1,5 +1,7 @@
 package org.interview.domain;
 
+import com.google.common.base.MoreObjects;
+
 public final class User {
     /*
     The user ID
@@ -19,5 +21,16 @@ The screen name of the user
         this.name = name;
         this.screen_name = screen_name;
         this.created_at = created_at;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("id_str", id_str)
+                .add("name", name)
+                .add("screen_name", screen_name)
+                .add("created_at", created_at)
+                .toString();
     }
 }

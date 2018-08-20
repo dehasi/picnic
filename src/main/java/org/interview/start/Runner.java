@@ -4,6 +4,8 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
+import com.google.gson.Gson;
+import org.interview.domain.Tweet;
 import org.interview.oauth.twitter.TwitterAuthenticationException;
 import org.interview.oauth.twitter.TwitterAuthenticator;
 
@@ -26,9 +28,15 @@ public class Runner {
 
         HttpResponse response = request.execute();
         InputStream inputStream = response.getContent();
+
+        Gson gson = new Gson();
+
+        /* java.io.UncheckedIOException: java.net.SocketTimeoutException: Read timed out*/
+
         new BufferedReader(new InputStreamReader(inputStream))
                 .lines()
-                .limit(10)
+                .map(line -> gson.fromJson(line, Tweet.class))
+                .limit(2)
                 .forEach(System.out::println);
     }
 }
