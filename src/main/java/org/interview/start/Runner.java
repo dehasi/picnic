@@ -18,13 +18,14 @@ public class Runner {
 
     private static final String CONSUMER_KEY = "vp8qXAMoZzy6jowJdtouPLUUb";
     private static final String CONSUMER_SECRET = "IMx3eIRfXXbRimoIz7cNpZCl0dr9dYEdRuDVTr2C4LdResXjN7";
+    private static final String RESOURCE_URL = "https://stream.twitter.com/1.1/statuses/filter.json";
 
     public static void main(String[] args) throws TwitterAuthenticationException, IOException {
         TwitterAuthenticator authenticator = new TwitterAuthenticator(System.out, CONSUMER_KEY, CONSUMER_SECRET);
         HttpRequestFactory requestFactory = authenticator.getAuthorizedHttpRequestFactory();
 
         HttpRequest request = requestFactory.buildGetRequest(
-                new GenericUrl("https://stream.twitter.com/1.1/statuses/filter.json".concat("?track=Bieber")));
+                new GenericUrl(RESOURCE_URL.concat("?track=bieber")));
 
         HttpResponse response = request.execute();
         InputStream inputStream = response.getContent();
