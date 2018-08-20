@@ -2,6 +2,8 @@ package org.interview.domain;
 
 import com.google.common.base.MoreObjects;
 
+import java.time.ZonedDateTime;
+
 public final class Tweet {
     /*
     The message ID
