@@ -1,31 +1,28 @@
 package org.interview.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
+import java.time.ZonedDateTime;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class User {
-    /*
-    The user ID
-The creation date of the user
-The screen name of the user
-     */
-
     public final String id;
     public final String idStr;
     public final String name;
     public final String screenName;
-    public final String createdAt; /* Chech if it The creation date of the user */
+    public final ZonedDateTime createdAt;
 
     @JsonCreator
     public User(@JsonProperty("id") String id,
                 @JsonProperty("id_str") String idStr,
                 @JsonProperty("name") String name,
                 @JsonProperty("screen_name") String screenName,
-                @JsonProperty("created_at") String createdAt) {
+                @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "EEE MMM dd HH:mm:ss Z yyyy", locale = "en")
+                @JsonProperty("created_at") ZonedDateTime createdAt) {
         this.id = id;
         this.idStr = idStr;
         this.name = name;
