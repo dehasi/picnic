@@ -12,20 +12,17 @@ import java.time.ZonedDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class User {
     public final long id;
-    public final String idStr;
     public final String name;
     public final String screenName;
     public final ZonedDateTime createdAt;
 
     @JsonCreator
     public User(@JsonProperty("id") long id,
-                @JsonProperty("id_str") String idStr,
                 @JsonProperty("name") String name,
                 @JsonProperty("screen_name") String screenName,
                 @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "EEE MMM dd HH:mm:ss Z yyyy", locale = "en")
                 @JsonProperty("created_at") ZonedDateTime createdAt) {
         this.id = id;
-        this.idStr = idStr;
         this.name = name;
         this.screenName = screenName;
         this.createdAt = createdAt;
@@ -48,7 +45,6 @@ public final class User {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
-                .add("id_str", idStr)
                 .add("name", name)
                 .add("screen_name", screenName)
                 .add("created_at", createdAt)
