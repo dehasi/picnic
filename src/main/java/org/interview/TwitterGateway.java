@@ -6,6 +6,7 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
+import com.google.common.annotations.VisibleForTesting;
 import org.interview.domain.Tweet;
 import org.interview.oauth.twitter.TwitterAuthenticationException;
 import org.interview.oauth.twitter.TwitterAuthenticator;
@@ -14,14 +15,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class TwitterGateway {
     private static final String CONSUMER_KEY = "vp8qXAMoZzy6jowJdtouPLUUb";
     private static final String CONSUMER_SECRET = "IMx3eIRfXXbRimoIz7cNpZCl0dr9dYEdRuDVTr2C4LdResXjN7";
     private static final String RESOURCE_URL = "https://stream.twitter.com/1.1/statuses/filter.json";
-    private static final int CONNECT_TIMEOUT = 3 * 60000; // 3 minutes connect timeout
-    private static final int READ_TIMEOUT = 3 * 60000; // 3 minutes read timeout
+    private static final int CONNECT_TIMEOUT = 60000;
+    private static final int READ_TIMEOUT = 60000;
 
     private final TwitterAuthenticator authenticator;
     private final HttpRequestFactory requestFactory;
@@ -56,7 +59,7 @@ public class TwitterGateway {
                     .filter(line -> line != null && !line.isEmpty());
         } catch (IOException e) {
             e.printStackTrace();
-            return Stream.empty(); //?
+            return Stream.empty();
         }
     }
 
@@ -64,11 +67,36 @@ public class TwitterGateway {
         return streamRawTweetsByWord(word).map(this::mapToTweet);
     }
 
-    private Tweet mapToTweet(String line) {
+    @VisibleForTesting
+    Tweet mapToTweet(String line) {
         try {
             return mapper.readValue(line, Tweet.class);
         } catch (IOException e) {
             throw new RuntimeException(String.format("can't parse line [%s] to tweet", line), e);
         }
+    }
+
+    public List<String> getTweetsByWordForLast(String word) throws IOException {
+        long time_limit_ms = 30L * 1000L;
+        int size_limit = 100;
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)));
+
+        List<String> tweets = new ArrayList<>(size_limit);
+
+        String line = reader.readLine();
+        int countTweets = 0;
+        long startTime = System.currentTimeMillis();
+
+        for (; line != null && countTweets < size_limit && (System.currentTimeMillis() - startTime < time_limit_ms);
+             line = reader.readLine().trim()) {
+            if (line.isEmpty()) continue;
+
+            tweets.add(line);
+
+            countTweets++;
+        }
+
+        return tweets;
     }
 }
