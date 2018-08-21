@@ -20,6 +20,8 @@ public class TwitterGateway {
     private static final String CONSUMER_KEY = "vp8qXAMoZzy6jowJdtouPLUUb";
     private static final String CONSUMER_SECRET = "IMx3eIRfXXbRimoIz7cNpZCl0dr9dYEdRuDVTr2C4LdResXjN7";
     private static final String RESOURCE_URL = "https://stream.twitter.com/1.1/statuses/filter.json";
+    private static final int CONNECT_TIMEOUT = 3 * 60000; // 3 minutes connect timeout
+    private static final int READ_TIMEOUT = 3 * 60000; // 3 minutes read timeout
 
     private final TwitterAuthenticator authenticator;
     private final HttpRequestFactory requestFactory;
@@ -35,16 +37,20 @@ public class TwitterGateway {
         mapper.registerModule(new JavaTimeModule());
     }
 
-    public Stream<String> filterRawTweetsByWord(String word) {
+    public InputStream filterRawTweetsByWord(String word) throws IOException {
+        HttpRequest request = requestFactory.buildGetRequest(
+                new GenericUrl(RESOURCE_URL.concat("?track=").concat(word)));
+
+        request.setConnectTimeout(CONNECT_TIMEOUT);
+        request.setReadTimeout(READ_TIMEOUT);
+
+        HttpResponse response = request.execute();
+        return response.getContent();
+    }
+
+    public Stream<String> streamRawTweetsByWord(String word) {
         try {
-            HttpRequest request = requestFactory.buildGetRequest(
-                    new GenericUrl(RESOURCE_URL.concat("?track=").concat(word)));
-
-            request.setConnectTimeout(3 * 60000);  // 3 minutes connect timeout
-            request.setReadTimeout(3 * 60000);  // 3 minutes read timeout
-
-            HttpResponse response = request.execute();
-            InputStream inputStream = response.getContent();
+            InputStream inputStream = filterRawTweetsByWord(word);
             return new BufferedReader(new InputStreamReader(inputStream))
                     .lines()
                     .filter(line -> line != null && !line.isEmpty());
@@ -54,8 +60,8 @@ public class TwitterGateway {
         }
     }
 
-    public Stream<Tweet> filterTweetsByWord(String word) {
-        return filterRawTweetsByWord(word).map(this::mapToTweet);
+    public Stream<Tweet> streamTweetsByWord(String word) {
+        return streamRawTweetsByWord(word).map(this::mapToTweet);
     }
 
     private Tweet mapToTweet(String line) {
