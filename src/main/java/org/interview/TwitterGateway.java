@@ -19,12 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class TwitterGateway {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitterGateway.class);
+
     private static final String CONSUMER_KEY = "vp8qXAMoZzy6jowJdtouPLUUb";
     private static final String CONSUMER_SECRET = "IMx3eIRfXXbRimoIz7cNpZCl0dr9dYEdRuDVTr2C4LdResXjN7";
     private static final String RESOURCE_URL = "https://stream.twitter.com/1.1/statuses/filter.json";
     private static final int CONNECT_TIMEOUT = 60000;
-    private static final int READ_TIMEOUT = 60000;
+    private static final int READ_TIMEOUT = 2 * 60000;
 
     private final TwitterAuthenticator authenticator;
     private final HttpRequestFactory requestFactory;
@@ -34,6 +40,7 @@ public class TwitterGateway {
     public TwitterGateway() throws TwitterAuthenticationException {
         authenticator = new TwitterAuthenticator(System.out, CONSUMER_KEY, CONSUMER_SECRET);
 
+        LOGGER.debug("Authorizing http client");
         requestFactory = authenticator.getAuthorizedHttpRequestFactory();
 
         mapper = new ObjectMapper();
@@ -42,10 +49,12 @@ public class TwitterGateway {
 
     public InputStream filterRawTweetsByWord(String word) throws IOException {
         HttpRequest request = requestFactory.buildGetRequest(
-                new GenericUrl(RESOURCE_URL.concat("?track=").concat(word)));
+                new GenericUrl(RESOURCE_URL.concat("?track=").concat(word))); //.concat("&count=100")
 
         request.setConnectTimeout(CONNECT_TIMEOUT);
         request.setReadTimeout(READ_TIMEOUT);
+
+        LOGGER.info("Executing request to twitter");
 
         HttpResponse response = request.execute();
         return response.getContent();
@@ -58,7 +67,7 @@ public class TwitterGateway {
                     .lines()
                     .filter(line -> line != null && !line.isEmpty());
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("{Can't connect to twitter}",e);
             return Stream.empty();
         }
     }
@@ -72,7 +81,7 @@ public class TwitterGateway {
         try {
             return mapper.readValue(line, Tweet.class);
         } catch (IOException e) {
-            throw new RuntimeException(String.format("can't parse line [%s] to tweet", line), e);
+            throw new RuntimeException(String.format("Can't parse line [%s] to tweet", line), e);
         }
     }
 
@@ -87,6 +96,7 @@ public class TwitterGateway {
         String line = reader.readLine();
         int countTweets = 0;
         long startTime = System.currentTimeMillis();
+        LOGGER.info("Start to read incoming tweets");
 
         for (; line != null && countTweets < size_limit && (System.currentTimeMillis() - startTime < time_limit_ms);
              line = reader.readLine().trim()) {
@@ -96,7 +106,7 @@ public class TwitterGateway {
 
             countTweets++;
         }
-
+        LOGGER.info("Extracted {} tweets for {} secs", countTweets, (System.currentTimeMillis() - startTime)/1000L );
         return tweets;
     }
 }

@@ -18,6 +18,7 @@ public class Runner {
 
     public static void main(String[] args) throws TwitterAuthenticationException, IOException {
 
+
         TwitterGateway gateway = new TwitterGateway();
 
         ZonedDateTime dateTime = ZonedDateTime.now(ZoneId.of("UTC")).minusSeconds(30L);
