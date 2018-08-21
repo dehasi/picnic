@@ -33,6 +33,7 @@ public class TwitterClient {
     private static final int READ_TIMEOUT = 2 * 60000;
     private static final long TIME_LIMIT_MS = 30L * 1000L;
     private static final int SIZE_LIMIT = 100;
+    public static final int NUM_RETRIES = 3;
 
 
     private final TwitterAuthenticator authenticator;
@@ -51,16 +52,24 @@ public class TwitterClient {
     }
 
     public InputStream filterRawTweetsByWord(String word) throws IOException {
+        HttpRequest request = prepareRequest(word);
+
+        LOGGER.info("Executing request: {}", request.getUrl());
+
+        HttpResponse response = request.execute();
+
+        LOGGER.debug("The request has finished with status: {}", response.getStatusCode());
+        return response.getContent();
+    }
+
+    private HttpRequest prepareRequest(String word) throws IOException {
         HttpRequest request = requestFactory.buildGetRequest(
                 new GenericUrl(RESOURCE_URL.concat("?track=").concat(word))); //.concat("&count=100")
 
         request.setConnectTimeout(CONNECT_TIMEOUT);
         request.setReadTimeout(READ_TIMEOUT);
-
-        LOGGER.info("Executing request to twitter");
-
-        HttpResponse response = request.execute();
-        return response.getContent();
+        request.setNumberOfRetries(NUM_RETRIES);
+        return request;
     }
 
     public Stream<String> streamRawTweetsByWord(String word) {
