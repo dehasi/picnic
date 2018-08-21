@@ -31,6 +31,9 @@ public class TwitterGateway {
     private static final String RESOURCE_URL = "https://stream.twitter.com/1.1/statuses/filter.json";
     private static final int CONNECT_TIMEOUT = 60000;
     private static final int READ_TIMEOUT = 2 * 60000;
+    private static final long TIME_LIMIT_MS = 30L * 1000L;
+    private static final int SIZE_LIMIT = 100;
+
 
     private final TwitterAuthenticator authenticator;
     private final HttpRequestFactory requestFactory;
@@ -73,7 +76,14 @@ public class TwitterGateway {
     }
 
     public Stream<Tweet> streamTweetsByWord(String word) {
-        return streamRawTweetsByWord(word).map(this::mapToTweet);
+//        return streamRawTweetsByWord(word).map(this::mapToTweet);
+
+        try {
+            return getTweetsByWordForLast(word).stream().map(this::mapToTweet);
+        } catch (IOException e) {
+            LOGGER.error("Error during request tweets", e);
+            return Stream.empty();
+        }
     }
 
     @VisibleForTesting
@@ -86,27 +96,26 @@ public class TwitterGateway {
     }
 
     public List<String> getTweetsByWordForLast(String word) throws IOException {
-        long time_limit_ms = 30L * 1000L;
-        int size_limit = 100;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)), 6000 * 100);
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)));
-
-        List<String> tweets = new ArrayList<>(size_limit);
+        List<String> tweets = new ArrayList<>(SIZE_LIMIT);
 
         String line = reader.readLine();
-        int countTweets = 0;
+        int tweetsCount = 0;
         long startTime = System.currentTimeMillis();
         LOGGER.info("Start to read incoming tweets");
 
-        for (; line != null && countTweets < size_limit && (System.currentTimeMillis() - startTime < time_limit_ms);
+        for (; line != null && tweetsCount < SIZE_LIMIT && (System.currentTimeMillis() - startTime < TIME_LIMIT_MS);
              line = reader.readLine().trim()) {
-            if (line.isEmpty()) continue;
+            if (line.isEmpty())
+                continue;
 
             tweets.add(line);
-
-            countTweets++;
+            ++tweetsCount;
         }
-        LOGGER.info("Extracted {} tweets for {} secs", countTweets, (System.currentTimeMillis() - startTime)/1000L );
+        LOGGER.info("Extracted {} tweets for {} secs", tweetsCount, (System.currentTimeMillis() - startTime)/1000L );
         return tweets;
     }
+
+
 }
