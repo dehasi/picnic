@@ -22,9 +22,9 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TwitterGateway {
+public class TwitterClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwitterGateway.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwitterClient.class);
 
     private static final String CONSUMER_KEY = "vp8qXAMoZzy6jowJdtouPLUUb";
     private static final String CONSUMER_SECRET = "IMx3eIRfXXbRimoIz7cNpZCl0dr9dYEdRuDVTr2C4LdResXjN7";
@@ -40,7 +40,7 @@ public class TwitterGateway {
 
     private final ObjectMapper mapper;
 
-    public TwitterGateway() throws TwitterAuthenticationException {
+    public TwitterClient() throws TwitterAuthenticationException {
         authenticator = new TwitterAuthenticator(System.out, CONSUMER_KEY, CONSUMER_SECRET);
 
         LOGGER.debug("Authorizing http client");
