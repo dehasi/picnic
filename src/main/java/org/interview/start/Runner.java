@@ -19,9 +19,6 @@ public class Runner {
     public static void main(String[] args) throws TwitterAuthenticationException, IOException {
         TwitterGateway gateway = new TwitterGateway();
 
-        List<String> userTweets = gateway.getTweetsByWordForLast("biber");
-        System.out.println(userTweets);
-
         Map<User, List<Tweet>> userTweets2 = gateway.streamTweetsByWord("bieber").collect(Collectors.groupingBy(tweet -> tweet.user));
         userTweets2.values().forEach(tweets -> tweets.sort(Comparator.comparing(t -> t.createdAt)));
         userTweets2.keySet().stream()
