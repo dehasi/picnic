@@ -33,7 +33,7 @@ public class TwitterClient {
     private static final int READ_TIMEOUT = 2 * 60000;
     private static final long TIME_LIMIT_MS = 30L * 1000L;
     private static final int SIZE_LIMIT = 100;
-    public static final int NUM_RETRIES = 3;
+    private static final int NUM_RETRIES = 3;
 
 
     private final TwitterAuthenticator authenticator;
