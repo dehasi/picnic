@@ -105,6 +105,7 @@ public class TwitterClient {
     }
 
     public List<String> getTweetsByWordForLast(String word) throws IOException {
+        LOGGER.info("Read tweets...");
         BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)), 6000 * 100);
 
         List<String> tweets = new ArrayList<>(SIZE_LIMIT);
