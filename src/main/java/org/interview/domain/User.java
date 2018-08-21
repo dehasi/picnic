@@ -10,14 +10,14 @@ import java.time.ZonedDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class User {
-    public final String id;
+    public final long id;
     public final String idStr;
     public final String name;
     public final String screenName;
     public final ZonedDateTime createdAt;
 
     @JsonCreator
-    public User(@JsonProperty("id") String id,
+    public User(@JsonProperty("id") long id,
                 @JsonProperty("id_str") String idStr,
                 @JsonProperty("name") String name,
                 @JsonProperty("screen_name") String screenName,

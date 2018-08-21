@@ -11,7 +11,7 @@ import java.time.ZonedDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Tweet {
 
-    public final String id;
+    public final long id;
     public final String idStr;
     public final ZonedDateTime createdAt;
     public final String text;
@@ -20,7 +20,7 @@ public final class Tweet {
 
 
     @JsonCreator
-    public Tweet(@JsonProperty("id") String id,
+    public Tweet(@JsonProperty("id") long id,
                  @JsonProperty("id_str") String idStr,
                  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "EEE MMM dd HH:mm:ss Z yyyy", locale = "en")
                  @JsonProperty("created_at") ZonedDateTime createdAt,
