@@ -12,11 +12,11 @@ import java.time.ZonedDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Tweet {
 
-    public final long id;
-    public final ZonedDateTime createdAt;
-    public final String text;
-    public final long timestampMs;
-    public final User user;
+    private final long id;
+    private final ZonedDateTime createdAt;
+    private final String text;
+    private final long timestampMs;
+    private final User user;
 
 
     @JsonCreator
@@ -31,6 +31,26 @@ public final class Tweet {
         this.text = text;
         this.timestampMs = timestampMs;
         this.user = user;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public long getTimestampMs() {
+        return timestampMs;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     @Override

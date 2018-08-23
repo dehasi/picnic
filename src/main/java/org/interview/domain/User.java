@@ -11,10 +11,10 @@ import java.time.ZonedDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class User {
-    public final long id;
-    public final String name;
-    public final String screenName;
-    public final ZonedDateTime createdAt;
+    private final long id;
+    private final String name;
+    private final String screenName;
+    private final ZonedDateTime createdAt;
 
     @JsonCreator
     public User(@JsonProperty("id") long id,
@@ -26,6 +26,22 @@ public final class User {
         this.name = name;
         this.screenName = screenName;
         this.createdAt = createdAt;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getScreenName() {
+        return screenName;
+    }
+
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
     }
 
     @Override

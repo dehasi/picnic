@@ -18,10 +18,10 @@ public class Runner {
     public static void main(String[] args) throws TwitterAuthenticationException {
         TwitterClient gateway = new TwitterClient();
 
-        Map<User, List<Tweet>> userTweets = gateway.streamTweetsByWord("bieber").collect(Collectors.groupingBy(tweet -> tweet.user));
-        userTweets.values().forEach(tweets -> tweets.sort(Comparator.comparing(t -> t.createdAt)));
+        Map<User, List<Tweet>> userTweets = gateway.streamTweetsByWord("bieber").collect(Collectors.groupingBy(Tweet::getUser));
+        userTweets.values().forEach(tweets -> tweets.sort(Comparator.comparing(Tweet::getCreatedAt)));
         userTweets.keySet().stream()
-                .sorted(Comparator.comparing(user -> user.createdAt))
+                .sorted(Comparator.comparing(User::getCreatedAt))
                 .forEach(user ->
                         LOGGER.info("User {} has tweets {}", user, userTweets.get(user))
                 );
