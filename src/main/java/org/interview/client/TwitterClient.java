@@ -149,7 +149,7 @@ public class TwitterClient {
         });
         t.start();
         try {
-            t.join(TIME_LIMIT_MS);
+            t.join(TIME_LIMIT_MS*2);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
