@@ -12,6 +12,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public class Runner {
@@ -29,13 +31,10 @@ public class Runner {
 //                );
 
         try {
-            System.out.println(gateway.getTweetsByWordForLast2("bieber").get());
+            System.out.println(gateway.getTweetsByWordForLast2("bieber"));
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
         }
+
     }
 }

@@ -128,12 +128,13 @@ public class TwitterClient {
         return tweets;
     }
 
-    public CompletableFuture<List<String>> getTweetsByWordForLast2(String word) throws IOException {
+    public List<String> getTweetsByWordForLast2(String word) throws IOException {
         LOGGER.info("Read tweets...");
         BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)), 6000 * 100);
 
         List<String> tweets = new ArrayList<>(SIZE_LIMIT);
-        return CompletableFuture.supplyAsync(() -> {
+
+        Thread t = new Thread(() -> {
             int tweetsCount = 0;
             LOGGER.info("Start to read incoming tweets");
 
@@ -145,9 +146,15 @@ public class TwitterClient {
                 ++tweetsCount;
             }
 
-            LOGGER.info("Extracted {} tweets", tweetsCount);
-            return tweets;
         });
+        t.start();
+        try {
+            t.join(TIME_LIMIT_MS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        LOGGER.info("Extracted {} tweets", tweets.size());
+        return tweets;
     }
 
     private String readLine(BufferedReader reader) {
