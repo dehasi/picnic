@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -79,7 +80,7 @@ public class TwitterClient {
                     .lines()
                     .filter(line -> line != null && !line.isEmpty());
         } catch (IOException e) {
-            LOGGER.error("{Can't connect to twitter}",e);
+            LOGGER.error("{Can't connect to twitter}", e);
             return Stream.empty();
         }
     }
@@ -123,8 +124,39 @@ public class TwitterClient {
             tweets.add(line);
             ++tweetsCount;
         }
-        LOGGER.info("Extracted {} tweets for {} secs", tweetsCount, (System.currentTimeMillis() - startTime)/1000L );
+        LOGGER.info("Extracted {} tweets for {} secs", tweetsCount, (System.currentTimeMillis() - startTime) / 1000L);
         return tweets;
+    }
+
+    public CompletableFuture<List<String>> getTweetsByWordForLast2(String word) throws IOException {
+        LOGGER.info("Read tweets...");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)), 6000 * 100);
+
+        List<String> tweets = new ArrayList<>(SIZE_LIMIT);
+        return CompletableFuture.supplyAsync(() -> {
+            int tweetsCount = 0;
+            LOGGER.info("Start to read incoming tweets");
+
+            for (String line = readLine(reader); line != null && tweetsCount < SIZE_LIMIT; line = readLine(reader)) {
+                if (line.trim().isEmpty())
+                    continue;
+
+                tweets.add(line);
+                ++tweetsCount;
+            }
+
+            LOGGER.info("Extracted {} tweets", tweetsCount);
+            return tweets;
+        });
+    }
+
+    private String readLine(BufferedReader reader) {
+        try {
+            return reader.readLine();
+        } catch (IOException e) {
+            LOGGER.error("Can't read line {}", e);
+            return null;
+        }
     }
 
 

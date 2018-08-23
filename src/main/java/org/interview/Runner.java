@@ -7,9 +7,11 @@ import org.interview.oauth.twitter.TwitterAuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 public class Runner {
@@ -18,12 +20,22 @@ public class Runner {
     public static void main(String[] args) throws TwitterAuthenticationException {
         TwitterClient gateway = new TwitterClient();
 
-        Map<User, List<Tweet>> userTweets = gateway.streamTweetsByWord("bieber").collect(Collectors.groupingBy(Tweet::getUser));
-        userTweets.values().forEach(tweets -> tweets.sort(Comparator.comparing(Tweet::getCreatedAt)));
-        userTweets.keySet().stream()
-                .sorted(Comparator.comparing(User::getCreatedAt))
-                .forEach(user ->
-                        LOGGER.info("User {} has tweets {}", user, userTweets.get(user))
-                );
+//        Map<User, List<Tweet>> userTweets = gateway.streamTweetsByWord("bieber").collect(Collectors.groupingBy(Tweet::getUser));
+//        userTweets.values().forEach(tweets -> tweets.sort(Comparator.comparing(Tweet::getCreatedAt)));
+//        userTweets.keySet().stream()
+//                .sorted(Comparator.comparing(User::getCreatedAt))
+//                .forEach(user ->
+//                        LOGGER.info("User {} has tweets {}", user, userTweets.get(user))
+//                );
+
+        try {
+            System.out.println(gateway.getTweetsByWordForLast2("bieber").get());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 }
