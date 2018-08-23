@@ -11,9 +11,9 @@ and provide us with the source as well as the output of an execution:
 + Connect to the [Twitter Streaming
   API](https://developer.twitter.com/en/docs/tweets/filter-realtime/overview)
     * Use the following values:
-        + Consumer Key: `vp8qXAMoZzy6jowJdtouPLUUb`
-        + Consumer Secret: `IMx3eIRfXXbRimoIz7cNpZCl0dr9dYEdRuDVTr2C4LdResXjN7`
-    * The app name will be `interview-test`.
+        + Consumer Key: `<?>`
+        + Consumer Secret: `<?>`
+    * The app name will be `<?>`.
     * You will need to login with Twitter.
 + Filter messages that track on "bieber".
 + Retrieve the incoming messages for 30 seconds or up to 100 messages,

@@ -1,6 +1,6 @@
-package org.interview.start;
+package org.interview;
 
-import org.interview.TwitterClient;
+import org.interview.client.TwitterClient;
 import org.interview.domain.Tweet;
 import org.interview.domain.User;
 import org.interview.oauth.twitter.TwitterAuthenticationException;
