@@ -18,6 +18,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -60,7 +63,10 @@ public class TwitterClient {
         HttpResponse response = request.execute();
 
         LOGGER.debug("The request has finished with status: {}", response.getStatusCode());
-        return response.getContent();
+        LOGGER.debug("Getting content...");
+        InputStream content = response.getContent();
+        LOGGER.debug("Content has been accuired...");
+        return content;
     }
 
     private HttpRequest prepareRequest(String word) throws IOException {
@@ -108,7 +114,6 @@ public class TwitterClient {
     public List<String> getTweetsByWordForLast(String word) throws IOException {
         LOGGER.info("Read tweets...");
         BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)), 6000 * 100);
-
         List<String> tweets = new ArrayList<>(SIZE_LIMIT);
 
         String line = reader.readLine();
@@ -131,10 +136,12 @@ public class TwitterClient {
     public List<String> getTweetsByWordForLast2(String word) throws IOException {
         LOGGER.info("Read tweets...");
         BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)), 6000 * 100);
-
+        LOGGER.debug("Wait until buffer is ready");
+        while (!reader.ready());
+        LOGGER.debug("Buffer is ready");
         List<String> tweets = new ArrayList<>(SIZE_LIMIT);
 
-        Thread t = new Thread(() -> {
+        CompletableFuture<List<String>> future = CompletableFuture.supplyAsync(() -> {
             int tweetsCount = 0;
             LOGGER.info("Start to read incoming tweets");
 
@@ -145,13 +152,13 @@ public class TwitterClient {
                 tweets.add(line);
                 ++tweetsCount;
             }
-
+            return tweets;
         });
-        t.start();
+
         try {
-            t.join(TIME_LIMIT_MS*2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            List<String> strings = future.get(90, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException  | TimeoutException e) {
+           LOGGER.error("{}", e);
         }
         LOGGER.info("Extracted {} tweets", tweets.size());
         return tweets;
