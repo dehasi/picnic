@@ -15,7 +15,6 @@ public final class Tweet {
     private final long id;
     private final ZonedDateTime createdAt;
     private final String text;
-    private final long timestampMs;
     private final User user;
 
 
@@ -24,12 +23,10 @@ public final class Tweet {
                  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "EEE MMM dd HH:mm:ss Z yyyy", locale = "en")
                  @JsonProperty("created_at") ZonedDateTime createdAt,
                  @JsonProperty("text") String text,
-                 @JsonProperty("timestamp_ms") long timestampMs,
                  @JsonProperty("user") User user) {
         this.id = id;
         this.createdAt = createdAt;
         this.text = text;
-        this.timestampMs = timestampMs;
         this.user = user;
     }
 
@@ -43,10 +40,6 @@ public final class Tweet {
 
     public String getText() {
         return text;
-    }
-
-    public long getTimestampMs() {
-        return timestampMs;
     }
 
     public User getUser() {
@@ -72,7 +65,6 @@ public final class Tweet {
                 .add("id", id)
                 .add("created_at", createdAt)
                 .add("text", text)
-                .add("timestamp_ms", timestampMs)
                 .toString();
     }
 }

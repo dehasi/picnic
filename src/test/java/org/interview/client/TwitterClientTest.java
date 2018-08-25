@@ -54,7 +54,6 @@ public class TwitterClientTest {
         //then
         assertThat(tweet.getId()).isEqualTo(1031533339793129472L);
         assertThat(tweet.getText()).isEqualTo("juntar dinheiro pra ir na prox tour do justin bieber que eu amo");
-        assertThat(tweet.getTimestampMs()).isEqualTo(1534771687826L);
         assertThat(tweet.getCreatedAt())
                 .isEqualTo(ZonedDateTime.of(2018, 8, 20, 13, 28, 7, 0, ZoneId.of("UTC")));
         //and
