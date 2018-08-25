@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Runner {
     private static final Logger LOGGER = LoggerFactory.getLogger(Runner.class);
@@ -24,12 +25,20 @@ public class Runner {
         TwitterClient gateway = new TwitterClient(authenticator);
 
         Map<User, List<Tweet>> userTweets = gateway.streamTweetsByWord("bieber").collect(Collectors.groupingBy(Tweet::getUser));
-        userTweets.values().forEach(tweets -> tweets.sort(Comparator.comparing(Tweet::getCreatedAt)));
-        userTweets.keySet().stream()
-                .sorted(Comparator.comparing(User::getCreatedAt))
+        sortTweets(userTweets);
+        sortUsers(userTweets)
                 .forEach(user ->
                         LOGGER.info("User {} has tweets {}", user, userTweets.get(user))
                 );
+    }
+
+    private static void sortTweets(Map<User, List<Tweet>> userTweets) {
+        userTweets.values().forEach(tweets -> tweets.sort(Comparator.comparing(Tweet::getCreatedAt)));
+    }
+
+    private static Stream<User> sortUsers(Map<User, List<Tweet>> userTweets) {
+        return userTweets.keySet().stream()
+                .sorted(Comparator.comparing(User::getCreatedAt));
     }
 
 
