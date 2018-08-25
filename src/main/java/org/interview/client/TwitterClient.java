@@ -30,22 +30,16 @@ public class TwitterClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterClient.class);
 
-    private static final String CONSUMER_KEY = "vp8qXAMoZzy6jowJdtouPLUUb";
-    private static final String CONSUMER_SECRET = "IMx3eIRfXXbRimoIz7cNpZCl0dr9dYEdRuDVTr2C4LdResXjN7";
     private static final String RESOURCE_URL = "https://stream.twitter.com/1.1/statuses/filter.json";
     private static final int CONNECT_TIMEOUT = 60000;
     private static final int READ_TIMEOUT = 2 * 60000;
     private static final int SIZE_LIMIT = 100;
     private static final int NUM_RETRIES = 3;
 
-
     private final HttpRequestFactory requestFactory;
-
     private final ObjectMapper mapper;
 
-    public TwitterClient() throws TwitterAuthenticationException {
-        TwitterAuthenticator authenticator = new TwitterAuthenticator(System.out, CONSUMER_KEY, CONSUMER_SECRET);
-
+    public TwitterClient(TwitterAuthenticator authenticator ) throws TwitterAuthenticationException {
         LOGGER.debug("Authorizing http client");
         requestFactory = authenticator.getAuthorizedHttpRequestFactory();
 
@@ -61,10 +55,7 @@ public class TwitterClient {
         HttpResponse response = request.execute();
 
         LOGGER.debug("The request has finished with status: {}", response.getStatusCode());
-        LOGGER.debug("Getting content...");
-        InputStream content = response.getContent();
-        LOGGER.debug("Content has been accuired...");
-        return content;
+        return response.getContent();
     }
 
     private HttpRequest prepareRequest(String word) throws IOException {
