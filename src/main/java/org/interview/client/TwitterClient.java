@@ -35,18 +35,16 @@ public class TwitterClient {
     private static final String RESOURCE_URL = "https://stream.twitter.com/1.1/statuses/filter.json";
     private static final int CONNECT_TIMEOUT = 60000;
     private static final int READ_TIMEOUT = 2 * 60000;
-    private static final long TIME_LIMIT_MS = 30L * 1000L;
     private static final int SIZE_LIMIT = 100;
     private static final int NUM_RETRIES = 3;
 
 
-    private final TwitterAuthenticator authenticator;
     private final HttpRequestFactory requestFactory;
 
     private final ObjectMapper mapper;
 
     public TwitterClient() throws TwitterAuthenticationException {
-        authenticator = new TwitterAuthenticator(System.out, CONSUMER_KEY, CONSUMER_SECRET);
+        TwitterAuthenticator authenticator = new TwitterAuthenticator(System.out, CONSUMER_KEY, CONSUMER_SECRET);
 
         LOGGER.debug("Authorizing http client");
         requestFactory = authenticator.getAuthorizedHttpRequestFactory();
@@ -79,21 +77,7 @@ public class TwitterClient {
         return request;
     }
 
-    public Stream<String> streamRawTweetsByWord(String word) {
-        try {
-            InputStream inputStream = filterRawTweetsByWord(word);
-            return new BufferedReader(new InputStreamReader(inputStream))
-                    .lines()
-                    .filter(line -> line != null && !line.isEmpty());
-        } catch (IOException e) {
-            LOGGER.error("{Can't connect to twitter}", e);
-            return Stream.empty();
-        }
-    }
-
     public Stream<Tweet> streamTweetsByWord(String word) {
-//        return streamRawTweetsByWord(word).map(this::mapToTweet);
-
         try {
             return getTweetsByWordForLast(word).stream().map(this::mapToTweet);
         } catch (IOException e) {
@@ -114,38 +98,18 @@ public class TwitterClient {
     public List<String> getTweetsByWordForLast(String word) throws IOException {
         LOGGER.info("Read tweets...");
         BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)), 6000 * 100);
+//        LOGGER.debug("Wait until buffer is ready");
+//        while (!reader.ready());
+//        LOGGER.debug("Buffer is ready");
         List<String> tweets = new ArrayList<>(SIZE_LIMIT);
-
-        String line = reader.readLine();
-        int tweetsCount = 0;
-        long startTime = System.currentTimeMillis();
-        LOGGER.info("Start to read incoming tweets");
-
-        for (; line != null && tweetsCount < SIZE_LIMIT && (System.currentTimeMillis() - startTime < TIME_LIMIT_MS);
-             line = reader.readLine().trim()) {
-            if (line.isEmpty())
-                continue;
-
-            tweets.add(line);
-            ++tweetsCount;
-        }
-        LOGGER.info("Extracted {} tweets for {} secs", tweetsCount, (System.currentTimeMillis() - startTime) / 1000L);
-        return tweets;
-    }
-
-    public List<String> getTweetsByWordForLast2(String word) throws IOException {
-        LOGGER.info("Read tweets...");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)), 6000 * 100);
-        LOGGER.debug("Wait until buffer is ready");
-        while (!reader.ready());
-        LOGGER.debug("Buffer is ready");
-        List<String> tweets = new ArrayList<>(SIZE_LIMIT);
-
+        LOGGER.info("Read response, in takes time...");
+        String startLine = readLine(reader);
+        LOGGER.info("Reading has been finished");
         CompletableFuture<List<String>> future = CompletableFuture.supplyAsync(() -> {
             int tweetsCount = 0;
             LOGGER.info("Start to read incoming tweets");
 
-            for (String line = readLine(reader); line != null && tweetsCount < SIZE_LIMIT; line = readLine(reader)) {
+            for (String line = startLine; line != null && tweetsCount < SIZE_LIMIT; line = readLine(reader)) {
                 if (line.trim().isEmpty())
                     continue;
 
@@ -154,11 +118,11 @@ public class TwitterClient {
             }
             return tweets;
         });
-
+        List<String> strings = null;
         try {
-            List<String> strings = future.get(90, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException  | TimeoutException e) {
-           LOGGER.error("{}", e);
+            strings = future.get(30, TimeUnit.MINUTES);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            LOGGER.error("{}", e);
         }
         LOGGER.info("Extracted {} tweets", tweets.size());
         return tweets;
