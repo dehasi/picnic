@@ -1,5 +1,6 @@
 package org.interview;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.interview.client.TwitterClient;
 import org.interview.domain.Tweet;
 import org.interview.domain.User;
@@ -32,11 +33,13 @@ public class Runner {
                 );
     }
 
-    private static void sortTweets(Map<User, List<Tweet>> userTweets) {
+    @VisibleForTesting
+    static void sortTweets(Map<User, List<Tweet>> userTweets) {
         userTweets.values().forEach(tweets -> tweets.sort(Comparator.comparing(Tweet::getCreatedAt)));
     }
 
-    private static Stream<User> sortUsers(Map<User, List<Tweet>> userTweets) {
+    @VisibleForTesting
+    static Stream<User> sortUsers(Map<User, List<Tweet>> userTweets) {
         return userTweets.keySet().stream()
                 .sorted(Comparator.comparing(User::getCreatedAt));
     }
