@@ -70,7 +70,7 @@ public class TwitterClient {
 
     public Stream<Tweet> streamTweetsByWord(String word) {
         try {
-            return getTweetsByWordForLast(word).stream().map(this::mapToTweet);
+            return getTweetsByWord(word).stream().map(this::mapToTweet);
         } catch (IOException e) {
             LOGGER.error("Error during request tweets", e);
             return Stream.empty();
@@ -86,7 +86,7 @@ public class TwitterClient {
         }
     }
 
-    public List<String> getTweetsByWordForLast(String word) throws IOException {
+    public List<String> getTweetsByWord(String word) throws IOException {
         LOGGER.info("Read tweets...");
         BufferedReader reader = new BufferedReader(new InputStreamReader(filterRawTweetsByWord(word)), 6000 * 100);
 //        LOGGER.debug("Wait until buffer is ready");
